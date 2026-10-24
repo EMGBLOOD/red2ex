@@ -1,0 +1,62 @@
+name: Bug report
+description: Something in reDriver 2: Extended does not work as it should
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting. A report without the log file cannot be investigated and will be closed.
+        The log files are in the `logs` folder next to the game. Copy them BEFORE you start the game again, every start replaces `log.txt`.
+        Look through them first: they can contain the names of your Windows folders.
+  - type: input
+    id: version
+    attributes:
+      label: Game version
+      description: Shown in the main menu and at the top of the project page, for example 0.4.0-beta.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw or heard, and which city, car, game mode and number of players.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, one step per line.
+      placeholder: |
+        1. Start a new game in Chicago
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: logs\log.txt (REQUIRED)
+      description: Drag the file into this box, or paste its contents.
+    validations:
+      required: true
+  - type: textarea
+    id: crash
+    attributes:
+      label: logs\crash.txt (REQUIRED if the game crashed)
+      description: Drag the file into this box, or paste its contents. If there is no crash.txt, write: no crash.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before you send
+      options:
+        - label: I attached or pasted logs\log.txt from the run in which the problem happened.
+          required: true

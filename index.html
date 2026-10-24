@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reDriver 2: Extended - project status</title>
+<meta name="description" content="Roadmap, changelog and known issues of reDriver 2: Extended, a fan made mod of the REDRIVER2 rebuild of Driver 2.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<div id="banner" class="banner" hidden></div>
+<header class="top">
+  <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="top-row">
+    <div>
+      <h1>reDriver 2: Extended</h1>
+      <p class="sub">Project status, roadmap and bug reports</p>
+    </div>
+    <div class="top-tools">
+      <span id="version" class="chip chip-amber"></span>
+      <button id="theme" class="btn" type="button" aria-label="Change the colour theme">Theme: auto</button>
+    </div>
+  </div>
+  <nav aria-label="Sections"><div id="tabs" class="tabs" role="tablist"></div></nav>
+</header>
+
+<main id="main" tabindex="-1">
+<noscript><p class="note">This page needs JavaScript to show the roadmap. The raw data is in <a href="data.json">data.json</a>.</p></noscript>
+
+<section id="sec-overview" class="panel" role="tabpanel" aria-labelledby="tab-overview" hidden>
+  <h2>Overview</h2>
+  <p class="lead">reDriver 2: Extended is a fan made, non commercial mod of the open source REDRIVER2 rebuild of Driver 2, set in the late 70s and early 80s. It adds split screen for up to 8 players, a level editor, more cars, a GPU renderer and many options.</p>
+  <p>You need your own copy of the original game: nothing from the game discs is on this page or in the mod download.</p>
+  <div id="cards" class="cards"></div>
+  <h3>Big jobs</h3>
+  <div id="jobs" class="jobs"></div>
+  <p id="updated" class="muted"></p>
+</section>
+
+<section id="sec-progress" class="panel" role="tabpanel" aria-labelledby="tab-progress" hidden>
+  <h2>In progress</h2>
+  <p class="muted">Work that is being done now or has been started.</p>
+  <div class="filters"></div><ul class="items" id="list-progress"></ul>
+</section>
+<section id="sec-open" class="panel" role="tabpanel" aria-labelledby="tab-open" hidden>
+  <h2>Open</h2>
+  <p class="muted">Planned, not started, or waiting for a hands-on test by the author.</p>
+  <div class="filters"></div><ul class="items" id="list-open"></ul>
+</section>
+<section id="sec-done" class="panel" role="tabpanel" aria-labelledby="tab-done" hidden>
+  <h2>Done</h2>
+  <p class="muted">Finished work. The changelog has the full list per release.</p>
+  <div class="filters"></div><ul class="items" id="list-done"></ul>
+</section>
+
+<section id="sec-changelog" class="panel" role="tabpanel" aria-labelledby="tab-changelog" hidden>
+  <h2>Changelog</h2>
+  <div id="changelog"></div>
+</section>
+
+<section id="sec-known" class="panel" role="tabpanel" aria-labelledby="tab-known" hidden>
+  <h2>Known issues</h2>
+  <p class="muted">Bugs that are known and not fixed yet. Found something that is not listed? <a href="#report" data-goto="report">Report a bug</a>.</p>
+  <ul class="items" id="list-known"></ul>
+</section>
+
+<section id="sec-issues" class="panel" role="tabpanel" aria-labelledby="tab-issues" hidden>
+  <h2>Open issues</h2>
+  <p class="muted">Live from the public issue tracker. Reports are read by the author; a title with an id like [P12] links an issue to a roadmap item.</p>
+  <p id="issues-status" class="note" role="status"></p>
+  <ul class="items" id="list-issues"></ul>
+</section>
+
+<section id="sec-report" class="panel" role="tabpanel" aria-labelledby="tab-report" hidden>
+  <h2>How to report a bug</h2>
+  <ol class="steps">
+    <li><strong>Play once more and note what you did.</strong> A report that says what you clicked, in which city and with which car is fixed much faster.</li>
+    <li><strong>Find the log files.</strong> They are in the <code>logs</code> folder next to the game: <code>logs\log.txt</code> always, and <code>logs\crash.txt</code> when the game crashed. Copy them somewhere before you start the game again, because every start overwrites <code>log.txt</code>.</li>
+    <li><strong>Open the bug form</strong> with the button below, fill in the game version (shown at the top of this page and in the main menu) and attach both files. <strong>Reports without <code>log.txt</code> cannot be investigated</strong> and are closed.</li>
+  </ol>
+  <p><a id="report-btn" class="btn btn-big" href="#report" role="button">Report a bug</a>
+     <a id="feature-btn" class="btn" href="#report" role="button" hidden>Suggest a feature</a></p>
+  <p id="report-note" class="note"></p>
+  <h3>Privacy</h3>
+  <p>This page is static: it has no cookies, no analytics, no fonts or scripts from other sites and it never sends anything you do here anywhere. Its only network request is, when switched on, a read of the public issue list from GitHub, and the request goes from your browser to GitHub (their privacy policy applies); the answer is kept in your browser for 10 minutes. The Report button only opens a page of GitHub with an empty form. Logs can contain your Windows folder names, so look at them before you attach them.</p>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
+  <p id="foot-text"></p>
+  <p>reDriver 2: Extended is based on REDRIVER2 by SoapyMan (MIT). Driver and Driver 2 belong to their owners; this is not an official product.</p>
+</footer>
+<script src="data.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

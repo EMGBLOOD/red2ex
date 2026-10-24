@@ -1,0 +1,20 @@
+name: Feature request
+description: An idea for the game
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see?
+      description: Say what you want to do in the game, not how it should be programmed.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it help?
+  - type: markdown
+    attributes:
+      value: |
+        The game is set in the late 70s and early 80s. Requests are read and sorted by the author; not every idea is built.
