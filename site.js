@@ -77,8 +77,24 @@
         $("sub-" + subs[i].id).tabIndex = on ? 0 : -1;
       }
     }
+    menuLabels(top, sub);
     try { history.replaceState(null, "", "#" + id); } catch (e) { /* file:// in some browsers */ }
     if (focus) $((sub ? "sub-" + sub : "tab-" + top)).focus();
+  }
+  /* narrow screens: both tab rows fold into a button that shows where you are and opens the list on a tap (the rows themselves are plain lists on wide screens) */
+  function labelOf(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i].label + (list[i].count != null ? " (" + list[i].count + ")" : ""); return ""; }
+  function menuLabels(top, sub) {
+    $("menu-btn").textContent = "☰  " + labelOf(tabs, top) + "  ▾";
+    if (sub) $("sub-btn").textContent = "Showing: " + labelOf(subs, sub) + "  ▾";
+    ["tabs", "subtabs"].forEach(function (b) { $(b).classList.remove("open"); });
+    ["menu-btn", "sub-btn"].forEach(function (b) { $(b).setAttribute("aria-expanded", "false"); });
+  }
+  function wireMenu(btnId, barId) {
+    $(btnId).addEventListener("click", function () {
+      var open = !$(barId).classList.contains("open");
+      $(barId).classList.toggle("open", open);
+      $(btnId).setAttribute("aria-expanded", open ? "true" : "false");
+    });
   }
   function buildBar(bar, list, prefix, pick) {
     list.forEach(function (t) {
@@ -95,6 +111,8 @@
   function buildTabs() {
     buildBar($("tabs"), tabs, "tab-");
     buildBar($("subtabs"), subs, "sub-");
+    wireMenu("menu-btn", "tabs");
+    wireMenu("sub-btn", "subtabs");
     document.addEventListener("click", function (e) {
       var el = e.target, g = null;
       while (el && el.getAttribute && !(g = el.getAttribute("data-goto"))) el = el.parentNode;

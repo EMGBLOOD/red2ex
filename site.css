@@ -145,3 +145,18 @@ main { padding-top: 18px; padding-bottom: 28px; min-height: 60vh; }
 .navrow nav { flex: 1 1 auto; min-width: 0; }
 .navrow #tabs { margin: 0; padding-bottom: 0; border-bottom: 0; }
 .navrow .btn { flex: 0 0 auto; margin-left: auto; padding: 4px 12px; font-size: .9rem; white-space: nowrap; }
+
+/* narrow screens: the tab rows fold into menu buttons (the page script labels them with the current page and opens the list on a tap) */
+.menu-btn { display: none; }
+@media (max-width: 700px) {
+  .navrow { flex-wrap: wrap; align-items: center; gap: 8px; }
+  .menu-btn { display: block; text-align: left; font-size: 1rem; }
+  .navrow .menu-btn { flex: 1 1 0; min-width: 0; }
+  #sub-btn { width: 100%; margin: 0 0 10px; }
+  .navrow nav { order: 3; flex: 1 0 100%; }
+  .navrow .btn#theme { order: 2; }
+  .navrow #tabs, .subtabs { display: none; flex-direction: column; flex-wrap: nowrap; gap: 4px; margin: 0 0 12px; border: 2px solid var(--edge); border-radius: 10px; padding: 6px; background: var(--panel); }
+  .navrow #tabs.open, .subtabs.open { display: flex; }
+  .navrow #tabs .tab, .subtabs .tab { width: 100%; text-align: left; padding: 10px 12px; font-size: 1rem; }
+  .top-row { align-items: flex-start; }
+}
