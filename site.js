@@ -111,7 +111,8 @@
     var head = h("h4", null, it.id ? h("span", { "class": "id", text: it.id }) : null, h("span", { text: it.title }), h("span", { "class": "chip", text: STATE_LABEL[it.state] }));
     var li = h("li", { "class": "item " + STATE_CLASS[it.state] }, head);
     if (it.text) li.appendChild(h("p", { text: it.text }));
-    if (it.date) li.appendChild(h("p", { "class": "meta", text: "Date: " + it.date }));
+    if (it.added) li.appendChild(h("p", { "class": "meta", text: "Added: " + it.added }));
+    if (it.date) li.appendChild(h("p", { "class": "meta", text: (it.state === "d" ? "Done: " : "Date: ") + it.date }));
     if (it.detail) li.appendChild(h("p", { "class": "meta", text: "Detail: " + it.detail }));
     if (it.evidence) li.appendChild(h("p", { "class": "meta", text: "Evidence: " + it.evidence }));
     var is = issuesFor(it.id);
@@ -123,7 +124,14 @@
     return li;
   }
   function renderList(listId, pick, withFilters) {
-    var ul = $(listId), box = ul.previousElementSibling, q, sel, all = D.items.filter(pick).sort(function (a, b) { return (a.state === "c") - (b.state === "c"); });
+    var ul = $(listId), box = ul.previousElementSibling, q, sel, order, all = D.items.filter(pick);
+    /* newest first by the day the item was added (done items by the day they were done when that is known), the original order breaks ties */
+    function key(it) { return String((listId === "list-done" && it.date) ? it.date : (it.added || it.date || "")); }
+    all.forEach(function (it, n) { it._n = n; });
+    function sortAll(oldFirst) {
+      all.sort(function (a, b) { var k = key(b).localeCompare(key(a)); if (oldFirst) k = -k; return k || (a._n - b._n); });
+    }
+    sortAll(false);
     function draw() {
       var text = (q ? q.value : "").toLowerCase(), shown = 0;
       clear(ul);
@@ -138,6 +146,9 @@
       q = h("input", { type: "search", placeholder: "Search " + all.length + " entries", "aria-label": "Search" });
       q.addEventListener("input", draw);
       box.appendChild(q);
+      order = h("select", { "aria-label": "Sort by date" }, h("option", { value: "new", text: "Newest first" }), h("option", { value: "old", text: "Oldest first" }));
+      order.addEventListener("change", function () { sortAll(order.value === "old"); draw(); });
+      box.appendChild(order);
       if (listId === "list-open") {
         sel = h("select", { "aria-label": "Filter by state" }, h("option", { value: "all", text: "All" }), h("option", { value: "o", text: "Open" }), h("option", { value: "c", text: "Needs a test" }));
         sel.addEventListener("change", draw);
@@ -238,7 +249,7 @@
       return;
     }
     D.redraw = {};
-    D.jobs = D.items.filter(function (i) { return i.total > 0; });
+    D.jobs = D.items.filter(function (i) { return i.total > 0; }).sort(function (a, b) { return String(b.added || "").localeCompare(String(a.added || "")); });
     $("version").textContent = D.version;
     $("foot-text").textContent = "Built " + D.built + " from the project to-do lists. " + (D.github.enabled ? "Issues: github.com/" + D.github.owner + "/" + D.github.repo + "." : "The issue tracker opens with the public release.");
     if (D.internal) { var b = $("banner"); b.hidden = false; b.textContent = "INTERNAL BUILD - do not host this folder, it shows private items."; }
