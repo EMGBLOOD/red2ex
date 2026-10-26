@@ -3,9 +3,19 @@
 (function () {
   "use strict";
   var D = window.SITE_DATA || null;
-  var STATE_LABEL = { o: "Open", p: "In progress", d: "Done", c: "Needs a test" };
-  var STATE_CLASS = { o: "s-open", p: "s-progress", d: "s-done", c: "s-confirm" };
-  var MARK = { x: "[x]", "~": "[~]", " ": "[ ]", "?": "[?]" };
+  /* the five groups, in the order a visitor wants them: what is being built, what waits for a check, what is next, what is parked, what is finished */
+  var GROUPS = [
+    { id: "now", tab: "Working on now", title: "Working on right now", short: "being built today", help: "Somebody is working on these today.", cls: "st-now" },
+    { id: "testing", tab: "Needs a check", title: "Built, waiting for a check", short: "built, waits for a hands-on check", help: "These are built. They still need a hands-on try-out (with a pad, with the ears, by eye) before they count as done.", cls: "st-testing" },
+    { id: "planned", tab: "Planned", title: "Planned, not started", short: "not started yet", help: "Ideas and jobs that are wanted but nobody has started.", cls: "st-planned" },
+    { id: "hold", tab: "On hold", title: "Started, but on hold", short: "started, nobody works on it right now", help: "Work that was started and then parked. Some of it is waiting for something else, some was stopped on purpose; the text says which.", cls: "st-hold" },
+    { id: "done", tab: "Done", title: "Done", short: "finished and in the game", help: "Finished work. The changelog has the same news in order of version.", cls: "st-done" }
+  ];
+  var AREAS = [
+    ["cars", "Cars"], ["driving", "Driving and gameplay"], ["graphics", "Graphics"], ["sound", "Sound and music"], ["menus", "Menus, controls and camera"],
+    ["multiplayer", "Multiplayer"], ["editor", "Editor and missions"], ["cities", "Cities and levels"], ["install", "Install, files and languages"], ["behind", "Behind the scenes"]
+  ];
+  var MARK = { x: ["✓", "m-x"], "~": ["◐", "m-t"], " ": ["○", "m-o"], "?": ["?", "m-q"] };
   var CACHE_MS = 10 * 60 * 1000;
   var issues = [];
 
@@ -24,6 +34,8 @@
   function store(op, key, val) {
     try { return op === "get" ? window.localStorage.getItem(key) : window.localStorage.setItem(key, val); } catch (e) { return null; }
   }
+  function groupOf(id) { for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i].id === id) return GROUPS[i]; return GROUPS[0]; }
+  function areaName(id) { for (var i = 0; i < AREAS.length; i++) if (AREAS[i][0] === id) return AREAS[i][1]; return id; }
 
   /* ---------- theme ---------- */
   function applyTheme(mode) {
@@ -42,63 +54,69 @@
   }
 
   /* ---------- tabs ---------- */
-  var tabs = [];
-  function addTab(id, label, enabled) { if (enabled !== false) tabs.push({ id: id, label: label }); }
+  /* top tabs: Overview, Changelog, ...; the five status groups are sub tabs inside the Overview page (the summary is the first sub tab) */
+  var tabs = [], subs = [];
+  function addTab(id, label, count, enabled) { if (enabled !== false) tabs.push({ id: id, label: label, count: count }); }
+  function isSub(id) { for (var i = 0; i < subs.length; i++) if (subs[i].id === id) return true; return false; }
   function showTab(id, focus) {
-    var i, on;
+    var i, on, sub = null, top = id;
+    if (id === "overview") sub = "summary";
+    else if (isSub(id)) { top = "overview"; sub = id; }
     for (i = 0; i < tabs.length; i++) {
-      on = tabs[i].id === id;
+      on = tabs[i].id === top;
       $("sec-" + tabs[i].id).hidden = !on;
       $("tab-" + tabs[i].id).setAttribute("aria-selected", on ? "true" : "false");
       $("tab-" + tabs[i].id).tabIndex = on ? 0 : -1;
     }
+    if (sub) {
+      $("ov-summary").hidden = sub !== "summary";
+      for (i = 0; i < subs.length; i++) {
+        on = subs[i].id === sub;
+        if (subs[i].id !== "summary") $("sec-" + subs[i].id).hidden = !on;
+        $("sub-" + subs[i].id).setAttribute("aria-selected", on ? "true" : "false");
+        $("sub-" + subs[i].id).tabIndex = on ? 0 : -1;
+      }
+    }
     try { history.replaceState(null, "", "#" + id); } catch (e) { /* file:// in some browsers */ }
-    if (focus) $("tab-" + id).focus();
+    if (focus) $((sub ? "sub-" + sub : "tab-" + top)).focus();
   }
-  function buildTabs() {
-    var bar = $("tabs"), i, t;
-    function mk(t) {
-      var b = h("button", { type: "button", role: "tab", id: "tab-" + t.id, "aria-controls": "sec-" + t.id, "aria-selected": "false", "class": "tab", text: t.label });
+  function buildBar(bar, list, prefix, pick) {
+    list.forEach(function (t) {
+      var b = h("button", { type: "button", role: "tab", id: prefix + t.id, "aria-selected": "false", "class": "tab" }, t.label, t.count != null ? h("span", { "class": "n", text: " " + t.count }) : null);
       b.addEventListener("click", function () { showTab(t.id); });
       b.addEventListener("keydown", function (e) {
-        var k = e.key, n = tabs.indexOf(t);
-        if (k === "ArrowRight") n = (n + 1) % tabs.length; else if (k === "ArrowLeft") n = (n + tabs.length - 1) % tabs.length; else return;
-        e.preventDefault(); showTab(tabs[n].id, true);
+        var k = e.key, n = list.indexOf(t);
+        if (k === "ArrowRight") n = (n + 1) % list.length; else if (k === "ArrowLeft") n = (n + list.length - 1) % list.length; else return;
+        e.preventDefault(); showTab(list[n].id, true);
       });
-      return b;
-    }
-    for (i = 0; i < tabs.length; i++) { t = tabs[i]; bar.appendChild(mk(t)); }
+      bar.appendChild(b);
+    });
+  }
+  function buildTabs() {
+    buildBar($("tabs"), tabs, "tab-");
+    buildBar($("subtabs"), subs, "sub-");
     document.addEventListener("click", function (e) {
-      var g = e.target && e.target.getAttribute ? e.target.getAttribute("data-goto") : null;
+      var el = e.target, g = null;
+      while (el && el.getAttribute && !(g = el.getAttribute("data-goto"))) el = el.parentNode;
       if (g) { e.preventDefault(); showTab(g, true); }
     });
   }
 
-  /* ---------- overview ---------- */
-  function card(cls, n, label) { return h("div", { "class": "card " + cls }, h("b", { text: String(n) }), h("span", { text: label })); }
-  function renderOverview() {
-    var c = D.counts, cards = $("cards");
-    cards.appendChild(card("c-progress", c.progress, "in progress"));
-    cards.appendChild(card("c-open", c.open, "open"));
-    if (c.confirm) cards.appendChild(card("c-confirm", c.confirm, "waiting for a test"));
-    cards.appendChild(card("c-done", c.done, "done"));
-    var jobs = $("jobs"), i, j, pct, ul;
-    if (!D.jobs.length) jobs.appendChild(h("p", { "class": "empty", text: "No big jobs are listed." }));
-    for (i = 0; i < D.jobs.length; i++) {
-      j = D.jobs[i];
-      pct = j.total ? Math.round(100 * j.done / j.total) : 0;
-      ul = h("ul", { "class": "stages" });
-      j.stages.forEach(function (s) { ul.appendChild(h("li", null, h("span", { "class": "mk", text: MARK[s.m] || "[ ]" }), h("span", null, s.c + "  " + s.t))); });
-      jobs.appendChild(h("div", { "class": "job" },
-        h("div", { "class": "job-head" }, h("span", { "class": "job-title", text: j.title }), h("span", { "class": "chip", text: STATE_LABEL[j.state] + (j.total ? ", " + j.done + " of " + j.total + " stages" : "") })),
-        j.total ? h("div", { "class": "bar", role: "img", "aria-label": pct + " percent of the stages done" }, h("i", { "class": "b-done", style: "width:" + (100 * j.done / j.total) + "%" }), h("i", { "class": "b-part", style: "width:" + (100 * j.partly / j.total) + "%" })) : null,
-        j.text ? h("p", { text: j.text }) : null,
-        j.total ? h("details", null, h("summary", { text: "Stages" }), ul) : null));
-    }
-    $("updated").textContent = "Last updated " + D.built + ". " + (D.internal ? "Internal build: every item is shown." : "Only items marked public are listed here.");
+  /* ---------- pieces ---------- */
+  function bar(it) {
+    var pct = it.total ? Math.round(100 * it.done / it.total) : 0;
+    return h("div", { "class": "bar", role: "img", "aria-label": pct + " percent of the steps done" },
+      h("i", { "class": "b-done", style: "width:" + (100 * it.done / it.total) + "%" }), h("i", { "class": "b-part", style: "width:" + (100 * it.partly / it.total) + "%" }));
   }
-
-  /* ---------- roadmap lists ---------- */
+  function stageList(it) {
+    var ul = h("ul", { "class": "stages" });
+    it.stages.forEach(function (s) {
+      var m = MARK[s.m] || MARK[" "];
+      ul.appendChild(h("li", null, h("span", { "class": "mk " + m[1], text: m[0], title: s.m === "x" ? "done" : s.m === "~" ? "started" : s.m === "?" ? "built, needs a check" : "not started" }), h("span", { text: s.t })));
+    });
+    return ul;
+  }
+  function stepsText(it) { return it.done + " of " + it.total + " steps done" + (it.partly ? ", " + it.partly + " started" : ""); }
   function issuesFor(id) {
     var out = [], re = new RegExp("\\[" + id.replace(/[^\w-]/g, "") + "\\]", "i");
     issues.forEach(function (is) {
@@ -107,56 +125,99 @@
     });
     return out;
   }
-  function itemNode(it) {
-    var head = h("h4", null, it.id ? h("span", { "class": "id", text: it.id }) : null, h("span", { text: it.title }), h("span", { "class": "chip", text: STATE_LABEL[it.state] }));
-    var li = h("li", { "class": "item " + STATE_CLASS[it.state] }, head);
+  function itemNode(it, withArea) {
+    var g = groupOf(it.status);
+    var head = h("h4", null, h("span", { text: it.title }), it.bug ? h("span", { "class": "label tag-bug", text: "known problem" }) : null, withArea ? h("span", { "class": "label", text: areaName(it.area) }) : null);
+    var li = h("li", { "class": "item s-" + it.status }, head);
     if (it.text) li.appendChild(h("p", { text: it.text }));
-    if (it.added) li.appendChild(h("p", { "class": "meta", text: "Added: " + it.added }));
-    if (it.date) li.appendChild(h("p", { "class": "meta", text: (it.state === "d" ? "Done: " : "Date: ") + it.date }));
-    if (it.detail) li.appendChild(h("p", { "class": "meta", text: "Detail: " + it.detail }));
-    if (it.evidence) li.appendChild(h("p", { "class": "meta", text: "Evidence: " + it.evidence }));
+    if (it.total) {
+      li.appendChild(bar(it));
+      li.appendChild(h("details", null, h("summary", { text: stepsText(it) }), stageList(it)));
+    }
+    var when = it.status === "done" ? (it.date ? "Done " + it.date : "") : (it.added ? "Added " + it.added : "");
+    li.appendChild(h("p", { "class": "meta", text: (when ? when + " · " : "") + g.short + (it.bug ? " · " + it.id : "") }));
     var is = issuesFor(it.id);
     if (is.length) {
       var ul = h("ul", { "class": "issue-links" });
-      is.forEach(function (x) { ul.appendChild(h("li", null, h("a", { href: x.html_url, rel: "noopener" }, "Issue #" + x.number + ": " + x.title))); });
+      is.forEach(function (x) { ul.appendChild(h("li", null, h("a", { href: x.html_url, rel: "noopener" }, "Report #" + x.number + ": " + x.title))); });
       li.appendChild(ul);
     }
     return li;
   }
-  function renderList(listId, pick, withFilters) {
-    var ul = $(listId), box = ul.previousElementSibling, q, sel, order, all = D.items.filter(pick);
-    /* newest first by the day the item was added (done items by the day they were done when that is known), the original order breaks ties */
-    function key(it) { return String((listId === "list-done" && it.date) ? it.date : (it.added || it.date || "")); }
+  function jobNode(it) {
+    return h("div", { "class": "job" },
+      h("div", { "class": "job-head" }, h("span", { "class": "job-title", text: it.title }), h("span", { "class": "chip plain", text: areaName(it.area) + (it.total ? " · " + stepsText(it) : "") })),
+      it.total ? bar(it) : null,
+      it.text ? h("p", { text: it.text }) : null,
+      it.total ? h("details", { open: "" }, h("summary", { text: "Steps" }), stageList(it)) : null);
+  }
+  function dayKey(it) { return String(it.status === "done" && it.date ? it.date : (it.added || it.date || "")); }
+
+  /* ---------- overview ---------- */
+  function renderOverview() {
+    var cards = $("cards"), now = $("now-jobs"), recent = $("recent");
+    GROUPS.forEach(function (g) {
+      var b = h("button", { type: "button", "class": "card " + g.cls, "data-goto": g.id }, h("b", { text: String(D.counts[g.id]) }), h("strong", { text: g.tab }), h("span", { text: g.short }));
+      cards.appendChild(b);
+    });
+    var list = D.items.filter(function (i) { return i.status === "now"; });
+    if (!list.length) now.appendChild(h("p", { "class": "empty", text: "Nothing is being worked on at this moment." }));
+    list.forEach(function (it) { now.appendChild(jobNode(it)); });
+    D.items.filter(function (i) { return i.status === "done"; }).sort(function (a, b) { return dayKey(b).localeCompare(dayKey(a)); }).slice(0, 8)
+      .forEach(function (it) { recent.appendChild(itemNode(it, true)); });
+    $("updated").textContent = "Last updated " + D.built + ". " + D.items.length + " items in total, " + D.counts.bugs + " of them known problems.";
+  }
+
+  /* ---------- the five lists ---------- */
+  function buildListPanel(g) {
+    var sec = h("section", { id: "sec-" + g.id, "class": "panel inner", role: "tabpanel", "aria-labelledby": "sub-" + g.id, hidden: "" });
+    var filters = h("div", { "class": "filters" }), body = h("div");
+    var all = D.items.filter(function (i) { return i.status === g.id; }), q, areaSel, order, oldFirst = false;
+    sec.appendChild(h("h2", { text: g.title }));
+    sec.appendChild(h("p", { "class": "muted", text: g.help }));
+    sec.appendChild(filters);
+    sec.appendChild(body);
     all.forEach(function (it, n) { it._n = n; });
-    function sortAll(oldFirst) {
-      all.sort(function (a, b) { var k = key(b).localeCompare(key(a)); if (oldFirst) k = -k; return k || (a._n - b._n); });
-    }
-    sortAll(false);
     function draw() {
-      var text = (q ? q.value : "").toLowerCase(), shown = 0;
-      clear(ul);
-      all.forEach(function (it) {
-        if (text && (it.id + " " + it.title + " " + (it.text || "")).toLowerCase().indexOf(text) < 0) return;
-        if (sel && sel.value !== "all" && it.state !== sel.value) return;
-        ul.appendChild(itemNode(it)); shown++;
+      var text = (q ? q.value : "").toLowerCase(), want = areaSel ? areaSel.value : "all", shown = 0;
+      clear(body);
+      AREAS.forEach(function (a) {
+        var list = all.filter(function (it) {
+          if (it.area !== a[0] || (want !== "all" && want !== a[0])) return false;
+          return !text || (it.id + " " + it.title + " " + (it.text || "")).toLowerCase().indexOf(text) >= 0;
+        });
+        if (!list.length) return;
+        list.sort(function (x, y) { var k = dayKey(y).localeCompare(dayKey(x)); if (oldFirst) k = -k; return k || (x._n - y._n); });
+        var ul = h("ul", { "class": "items" }), d = h("details", { "class": "areas" }, h("summary", null, a[1] + " ", h("span", { "class": "n", text: "(" + list.length + ")" })), ul);
+        list.forEach(function (it) { ul.appendChild(itemNode(it, false)); });
+        if (g.id !== "done" || text || want !== "all" || all.length < 40) d.setAttribute("open", "");
+        body.appendChild(d); shown += list.length;
       });
-      if (!shown) ul.appendChild(h("li", { "class": "empty", text: all.length ? "Nothing matches the filter." : "Nothing here yet." }));
+      if (!shown) body.appendChild(h("p", { "class": "empty", text: all.length ? "Nothing matches the filter." : "Nothing here at the moment." }));
     }
-    if (withFilters && box && all.length) {
+    if (all.length > 6) {
       q = h("input", { type: "search", placeholder: "Search " + all.length + " entries", "aria-label": "Search" });
       q.addEventListener("input", draw);
-      box.appendChild(q);
+      filters.appendChild(q);
+      areaSel = h("select", { "aria-label": "Filter by topic" }, h("option", { value: "all", text: "All topics" }));
+      AREAS.forEach(function (a) { areaSel.appendChild(h("option", { value: a[0], text: a[1] })); });
+      areaSel.addEventListener("change", draw);
+      filters.appendChild(areaSel);
       order = h("select", { "aria-label": "Sort by date" }, h("option", { value: "new", text: "Newest first" }), h("option", { value: "old", text: "Oldest first" }));
-      order.addEventListener("change", function () { sortAll(order.value === "old"); draw(); });
-      box.appendChild(order);
-      if (listId === "list-open") {
-        sel = h("select", { "aria-label": "Filter by state" }, h("option", { value: "all", text: "All" }), h("option", { value: "o", text: "Open" }), h("option", { value: "c", text: "Needs a test" }));
-        sel.addEventListener("change", draw);
-        box.appendChild(sel);
-      }
+      order.addEventListener("change", function () { oldFirst = order.value === "old"; draw(); });
+      filters.appendChild(order);
     }
+    $("lists").appendChild(sec);
     draw();
     return draw;
+  }
+
+  /* ---------- known problems ---------- */
+  function renderKnown() {
+    var ul = $("list-known"), list = D.items.filter(function (i) { return i.bug && i.status !== "done"; });
+    clear(ul);
+    list.forEach(function (it) { ul.appendChild(itemNode(it, true)); });
+    if (!list.length) ul.appendChild(h("li", { "class": "empty", text: "No known problems are listed." }));
   }
 
   /* ---------- changelog ---------- */
@@ -168,9 +229,9 @@
       r.intro.forEach(function (p) { body.appendChild(h("p", { text: p })); });
       r.sections.forEach(function (s) {
         var ul = h("ul");
-        body.appendChild(h("h4", { text: s.title }));
         s.lines.forEach(function (l) { ul.appendChild(h("li", { text: l })); });
-        body.appendChild(ul);
+        if (r.sections.length === 1) body.appendChild(ul);
+        else body.appendChild(h("details", { "class": "sect" }, h("summary", null, s.title + " ", h("span", { "class": "n", text: "(" + s.lines.length + ")" })), ul));
       });
       var d = h("details", { "class": "release" }, h("summary", { text: r.title }), body);
       if (n === 0) d.setAttribute("open", "");
@@ -199,15 +260,15 @@
     var ul = $("list-issues"), st = $("issues-status");
     issues = list.filter(function (x) { return !x.pull_request; });
     clear(ul);
-    st.textContent = issues.length ? "" : "No open issues.";
+    st.textContent = issues.length ? "" : "No open reports.";
     issues.forEach(function (x) {
       var labels = h("span");
       (x.labels || []).forEach(function (l) { labels.appendChild(h("span", { "class": "label", text: String(l.name || l) })); });
-      ul.appendChild(h("li", { "class": "item s-open" },
+      ul.appendChild(h("li", { "class": "item s-planned" },
         h("h4", null, h("a", { href: x.html_url, rel: "noopener" }, "#" + x.number + "  " + x.title)),
         h("p", { "class": "meta" }, labels, " opened " + String(x.created_at || "").slice(0, 10))));
     });
-    ["list-open", "list-progress", "list-done"].forEach(function (id) { if (D.redraw[id]) D.redraw[id](); });
+    Object.keys(D.redraw).forEach(function (k) { D.redraw[k](); });
   }
   function loadIssues() {
     var g = D.github, st = $("issues-status"), key = "site-issues-" + g.owner + "/" + g.repo, now = Date.now(), raw, c, q = location.search.match(/[?&]issues=([\w.-]+\.js)(?:&|$)/);
@@ -222,7 +283,7 @@
     raw = store("get", key);
     try { c = raw ? JSON.parse(raw) : null; } catch (e) { c = null; }
     if (c && now - c.t < CACHE_MS && Array.isArray(c.v)) { drawIssues(c.v); st.textContent = st.textContent || ""; return; }
-    st.textContent = "Loading issues ...";
+    st.textContent = "Loading reports ...";
     fetch("https://api.github.com/repos/" + encodeURIComponent(g.owner) + "/" + encodeURIComponent(g.repo) + "/issues?state=open&per_page=50", { headers: { Accept: "application/vnd.github+json" } })
       .then(function (r) {
         if (r.status === 403 || r.status === 429) throw new Error("GitHub allows only 60 reads per hour from one address and that limit is used up. Try again later, or open the tracker on GitHub.");
@@ -236,7 +297,7 @@
         drawIssues(list);
       })
       .catch(function (e) {
-        st.textContent = (e && e.message && e.message.indexOf("Failed") < 0 ? e.message : "The issue list could not be loaded (you may be offline).") + " ";
+        st.textContent = (e && e.message && e.message.indexOf("Failed") < 0 ? e.message : "The report list could not be loaded (you may be offline).") + " ";
         st.appendChild(h("a", { href: repoUrl(g, "/issues"), rel: "noopener" }, "Open the tracker on GitHub"));
       });
   }
@@ -249,28 +310,30 @@
       return;
     }
     D.redraw = {};
-    D.jobs = D.items.filter(function (i) { return i.total > 0; }).sort(function (a, b) { return String(b.added || "").localeCompare(String(a.added || "")); });
-    $("version").textContent = D.version;
-    $("foot-text").textContent = "Built " + D.built + " from the project to-do lists. " + (D.github.enabled ? "Issues: github.com/" + D.github.owner + "/" + D.github.repo + "." : "The issue tracker opens with the public release.");
-    if (D.internal) { var b = $("banner"); b.hidden = false; b.textContent = "INTERNAL BUILD - do not host this folder, it shows private items."; }
+    $("version").textContent = "Version " + D.version;
+    var ft = $("foot-text");
+    ft.appendChild(document.createTextNode("Built " + D.built + " from the project to-do lists. "));
+    if (D.github.enabled) {
+      ft.appendChild(document.createTextNode("Reports: "));
+      ft.appendChild(h("a", { href: repoUrl(D.github, ""), rel: "noopener", text: "github.com/" + D.github.owner + "/" + D.github.repo }));
+      ft.appendChild(document.createTextNode("."));
+    } else ft.appendChild(document.createTextNode("The issue tracker opens with the public release."));
     addTab("overview", "Overview");
-    addTab("progress", "In progress");
-    addTab("open", "Open");
-    addTab("done", "Done");
+    subs.push({ id: "summary", label: "Summary" });
+    GROUPS.forEach(function (g) { subs.push({ id: g.id, label: g.tab, count: D.counts[g.id] }); });
     addTab("changelog", "Changelog");
-    addTab("known", "Known issues");
-    addTab("issues", "Open issues", D.github.enabled);
+    addTab("known", "Known problems", D.counts.bugs);
+    addTab("issues", "Open reports", null, D.github.enabled);
     addTab("report", "Report a bug");
+    GROUPS.forEach(function (g) { D.redraw[g.id] = buildListPanel(g); });
     buildTabs();
     renderOverview();
-    D.redraw["list-progress"] = renderList("list-progress", function (i) { return i.state === "p"; }, true);
-    D.redraw["list-open"] = renderList("list-open", function (i) { return i.state === "o" || i.state === "c"; }, true);
-    D.redraw["list-done"] = renderList("list-done", function (i) { return i.state === "d"; }, true);
-    D.redraw["list-known"] = renderList("list-known", function (i) { return i.bug && (i.state === "o" || i.state === "p"); }, false);
+    renderKnown();
+    D.redraw.known = renderKnown;
     renderChangelog();
     setupReport();
     var want = (location.hash || "#overview").slice(1);
-    showTab(tabs.some(function (t) { return t.id === want; }) ? want : "overview");
+    showTab(tabs.some(function (t) { return t.id === want; }) || isSub(want) ? want : "overview");
     if (D.github.enabled) loadIssues();
   }
   start();

@@ -17,4 +17,4 @@ body:
   - type: markdown
     attributes:
       value: |
-        The game is set in the late 70s and early 80s. Requests are read and sorted by the author; not every idea is built.
+        The game is set in the late 70s and early 80s. Requests are read and sorted; not every idea is built.

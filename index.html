@@ -3,70 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>reDriver 2: Extended - project status</title>
-<meta name="description" content="Roadmap, changelog and known issues of reDriver 2: Extended, a fan made mod of the REDRIVER2 rebuild of Driver 2.">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>reD2ex - Project Hub</title>
+<meta name="description" content="Project Hub of reDriver 2: Extended, a fan made mod of Driver 2: overview of what is done, being built and planned, the changelog and bug reports.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to the content</a>
-<div id="banner" class="banner" hidden></div>
 <header class="top">
   <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
-  <div class="top-row">
-    <div>
-      <h1>reDriver 2: Extended</h1>
-      <p class="sub">Project status, roadmap and bug reports</p>
-    </div>
-    <div class="top-tools">
-      <span id="version" class="chip chip-amber"></span>
-      <button id="theme" class="btn" type="button" aria-label="Change the colour theme">Theme: auto</button>
+  <div class="brown">
+    <div class="wrap top-row">
+      <div>
+        <h1><span class="full">reDriver 2: Extended</span><span class="short" aria-hidden="true">reD2ex</span></h1>
+        <p class="sub">Project Hub: Overview, Changelog, Bug Reports</p>
+      </div>
+      <span id="version" class="chip"></span>
     </div>
   </div>
-  <nav aria-label="Sections"><div id="tabs" class="tabs" role="tablist"></div></nav>
+  <div class="wrap navrow">
+    <nav aria-label="Sections"><div id="tabs" class="tabs" role="tablist"></div></nav>
+    <button id="theme" class="btn" type="button" aria-label="Change the colour theme">Theme: auto</button>
+  </div>
 </header>
 
-<main id="main" tabindex="-1">
-<noscript><p class="note">This page needs JavaScript to show the roadmap. The raw data is in <a href="data.json">data.json</a>.</p></noscript>
+<main id="main" class="wrap" tabindex="-1">
+<noscript><p class="note">This page needs JavaScript to show the status. The raw data is in <a href="data.json">data.json</a>.</p></noscript>
 
 <section id="sec-overview" class="panel" role="tabpanel" aria-labelledby="tab-overview" hidden>
-  <h2>Overview</h2>
+  <div id="subtabs" class="tabs subtabs" role="tablist" aria-label="Status groups"></div>
+  <div id="ov-summary">
+  <p class="lead">reDriver 2: Extended is a fan made, free mod of Driver 2, set in the late 70s and early 80s. It adds split screen for up to 8 players, a level editor, many more cars, better graphics and lots of options. You need your own copy of the original game; nothing from the game discs is here or in the mod.</p>
+  <h2>Where things stand</h2>
+  <p class="muted">Every piece of work is in exactly one of these five groups. Click a group to see its list.</p>
   <div id="cards" class="cards"></div>
-  <h3>Big jobs</h3>
-  <div id="jobs" class="jobs"></div>
+  <h2>Being worked on right now</h2>
+  <div id="now-jobs" class="jobs"></div>
+  <h2>Finished most recently</h2>
+  <ul id="recent" class="items"></ul>
   <p id="updated" class="muted"></p>
+  </div>
+  <div id="lists"></div>
 </section>
 
-<section id="sec-progress" class="panel" role="tabpanel" aria-labelledby="tab-progress" hidden>
-  <h2>In progress</h2>
-  <p class="muted">Work that is being done now or has been started.</p>
-  <div class="filters"></div><ul class="items" id="list-progress"></ul>
-</section>
-<section id="sec-open" class="panel" role="tabpanel" aria-labelledby="tab-open" hidden>
-  <h2>Open</h2>
-  <p class="muted">Planned, not started, or waiting for a hands-on test by the author.</p>
-  <div class="filters"></div><ul class="items" id="list-open"></ul>
-</section>
-<section id="sec-done" class="panel" role="tabpanel" aria-labelledby="tab-done" hidden>
-  <h2>Done</h2>
-  <p class="muted">Finished work. The changelog has the full list per release.</p>
-  <div class="filters"></div><ul class="items" id="list-done"></ul>
-</section>
 
 <section id="sec-changelog" class="panel" role="tabpanel" aria-labelledby="tab-changelog" hidden>
-  <h2>Changelog</h2>
+  <h2>What changed in each version</h2>
   <div id="changelog"></div>
 </section>
 
 <section id="sec-known" class="panel" role="tabpanel" aria-labelledby="tab-known" hidden>
-  <h2>Known issues</h2>
-  <p class="muted">Bugs that are known and not fixed yet. Found something that is not listed? <a href="#report" data-goto="report">Report a bug</a>.</p>
+  <h2>Known problems</h2>
+  <p class="muted">Problems that are known and not fixed yet. Found something that is not listed? <a href="#report" data-goto="report">Report a bug</a>.</p>
   <ul class="items" id="list-known"></ul>
 </section>
 
 <section id="sec-issues" class="panel" role="tabpanel" aria-labelledby="tab-issues" hidden>
-  <h2>Open issues</h2>
-  <p class="muted">Live from the public issue tracker. Reports are read by the author; a title with an id like [P12] links an issue to a roadmap item.</p>
+  <h2>Open reports</h2>
+  <p class="muted">Live from the public issue tracker. A title with an id like [P12] links a report to an item of the lists.</p>
   <p id="issues-status" class="note" role="status"></p>
   <ul class="items" id="list-issues"></ul>
 </section>
@@ -88,8 +84,12 @@
 
 <footer class="foot">
   <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
-  <p id="foot-text"></p>
-  <p>reDriver 2: Extended is based on REDRIVER2 by SoapyMan (MIT). Driver and Driver 2 belong to their owners; this is not an official product.</p>
+  <div class="brown pattern">
+    <div class="wrap">
+      <p id="foot-text"></p>
+      <p>reDriver 2: Extended is based on <a href="https://github.com/SoapyMan/REDRIVER2" rel="noopener">REDRIVER2</a> by SoapyMan (MIT).<br>Driver and Driver 2 belong to their owners; this is not an official product.</p>
+    </div>
+  </div>
 </footer>
 <script src="data.js"></script>
 <script src="site.js"></script>
