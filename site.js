@@ -190,7 +190,7 @@
   function buildListPanel(g) {
     var sec = h("section", { id: "sec-" + g.id, "class": "panel inner", role: "tabpanel", "aria-labelledby": "sub-" + g.id, hidden: "" });
     var filters = h("div", { "class": "filters" }), body = h("div");
-    var all = D.items.filter(function (i) { return i.status === g.id; }), q, areaSel, order, oldFirst = false;
+    var all = D.items.filter(function (i) { return i.status === g.id && !(i.bug && (g.id === "planned" || g.id === "hold")); }), q, areaSel, order, oldFirst = false;
     sec.appendChild(h("h2", { text: g.title }));
     sec.appendChild(h("p", { "class": "muted", text: g.help }));
     sec.appendChild(filters);
