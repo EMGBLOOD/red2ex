@@ -1,0 +1,75 @@
+name: "Controller, wheel or Steam Deck problem"
+description: "A gamepad, wheel or Steam Deck does not work or maps wrong."
+title: "[Controller] "
+labels: ["controller", "needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Start the game with the controller connected. Press every button once, move both sticks, pull both triggers, then quit. logs\log.txt now has a block of **[pad]** lines: the controller name, its GUID, the mapping, and one line for every button you pressed. Attach that file.
+
+        Step by step for everything asked below: **REPORTS_README.txt** in the game folder. No GitHub account, or something private? Write to redriver2extended@protonmail.com.
+  - type: input
+    id: version
+    attributes:
+      label: "Game version"
+      description: "Shown at the bottom right of the launcher window, for example reDriver 2: Extended v0.4.2-beta."
+      placeholder: "0.4.2-beta"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: "Which controller or wheel?"
+      placeholder: "Xbox Series controller, Logitech G29, Steam Deck"
+    validations:
+      required: true
+  - type: dropdown
+    id: started
+    attributes:
+      label: "How did you start the game?"
+      options:
+        - "From Steam"
+        - "From the launcher"
+        - "From the exe"
+        - "Other"
+    validations:
+      required: true
+  - type: input
+    id: layout
+    attributes:
+      label: "Steam Input layout"
+      description: "Only if Steam is involved: Gamepad, Desktop or a community layout."
+  - type: textarea
+    id: what
+    attributes:
+      label: "What does not work?"
+      description: "Which button or axis, and what it does instead."
+    validations:
+      required: true
+  - type: checkboxes
+    id: tried
+    attributes:
+      label: "Did you already try these? (how: REPORTS_README.txt, section CONTROLLER)"
+      options:
+        - label: "config\\config.ini, section [pad]: deckhid=off"
+        - label: "config\\config.ini, section [pad]: rawinput=off"
+  - type: dropdown
+    id: system
+    attributes:
+      label: "Your system"
+      options:
+        - "Windows 11"
+        - "Windows 10"
+        - "Linux (Proton)"
+        - "Steam Deck"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: "logs\\log.txt"
+      description: "Drag the file into this box."
+    validations:
+      required: true

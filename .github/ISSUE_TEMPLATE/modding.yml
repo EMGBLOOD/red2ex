@@ -1,0 +1,61 @@
+name: "Modding, Studio or level editor problem"
+description: "reDriver Studio, the level editor, the car or mission makers, Lua scripts or a mod pack."
+title: "[Modding] "
+labels: ["modding", "needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The guides in the tools folder (**MODDING_START_HERE.txt**, **MODDING_studio.txt** and the how-to files) cover most first steps. If one of them says something that does not match what you see, please say which line.
+
+        Step by step for everything asked below: **REPORTS_README.txt** in the game folder. No GitHub account, or something private? Write to redriver2extended@protonmail.com.
+  - type: input
+    id: version
+    attributes:
+      label: "Game and tools version"
+      description: "Shown at the bottom right of the launcher window, for example reDriver 2: Extended v0.4.2-beta."
+      placeholder: "0.4.2-beta"
+    validations:
+      required: true
+  - type: dropdown
+    id: tool
+    attributes:
+      label: "Which tool?"
+      options:
+        - "reDriver Studio"
+        - "Level editor (F6 in a level)"
+        - "Car creator or model wizard"
+        - "Mission maker or scenes"
+        - "Lua scripts"
+        - "A mod pack or .level / .car file"
+        - "Something else"
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: "What are you trying to make?"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: "What goes wrong?"
+      description: "Include any message the tool shows."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "What did you do?"
+      description: "The steps in order, so I can repeat them."
+  - type: textarea
+    id: files
+    attributes:
+      label: "Files"
+      description: "Drag in the script, pack or file that shows the problem. Zip a folder first."
+  - type: textarea
+    id: log
+    attributes:
+      label: "Log"
+      description: "logs\\log.txt from the game folder, or the log of the tool."

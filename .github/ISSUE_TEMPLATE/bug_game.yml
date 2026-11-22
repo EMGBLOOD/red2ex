@@ -1,0 +1,113 @@
+name: "Bug in the game"
+description: "Something in the game does not work: driving, a city, a mission, a menu, sound, graphics."
+title: "[Bug] "
+labels: ["bug", "needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. **Logs are needed**, reports without them may not get an answer.
+
+        Press **F10** in the game the moment you see the problem: it saves your position, mission, time of day and a screenshot. Then double click **collect_report.bat** in the game folder. It makes **reDriver_report.zip**, drag that file into the last box.
+
+        The log lists your Windows version, graphics card, settings and the names of the files it found. It does not hold your computer name or account name, and a Windows user name in a folder path is written as <user>. Have a look before you post it if that matters to you.
+
+        Step by step for everything asked below: **REPORTS_README.txt** in the game folder. No GitHub account, or something private? Write to redriver2extended@protonmail.com.
+  - type: input
+    id: version
+    attributes:
+      label: "Game version"
+      description: "Shown at the bottom right of the launcher window, for example reDriver 2: Extended v0.4.2-beta."
+      placeholder: "0.4.2-beta"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "What is it about?"
+      options:
+        - "Driving and cars"
+        - "Driver 2 cities"
+        - "Bonus cities (Driver 1, Ashland, Miami, ...)"
+        - "Missions and story"
+        - "Take a Ride (free roam)"
+        - "Menus and interface"
+        - "Graphics and lighting"
+        - "Weather and sky"
+        - "Sound and music"
+        - "Split screen and controllers"
+        - "Level editor"
+        - "Something else"
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: "Where does it happen?"
+      description: "City, game mode, mission or menu page."
+      placeholder: "Chicago, Take a Ride, after finishing a taxi job"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: "What happens?"
+      description: "What you saw, in your own words. Say if a message or a picture came up."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "What should happen instead?"
+  - type: textarea
+    id: steps
+    attributes:
+      label: "How can I make it happen?"
+      description: "The steps, as short as you can. If you cannot repeat it, say so."
+      placeholder: |
+        1. Start Take a Ride in Chicago
+        2. ...
+  - type: dropdown
+    id: how-often
+    attributes:
+      label: "How often?"
+      options:
+        - "Every time"
+        - "Often"
+        - "Once so far"
+        - "I do not know yet"
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: "Your system"
+      options:
+        - "Windows 11"
+        - "Windows 10"
+        - "Linux (Proton)"
+        - "Steam Deck"
+        - "Other"
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: "Graphics card and driver"
+      description: "Optional. It is in the log too."
+      placeholder: "NVIDIA GeForce RTX 3070, driver 566.36"
+  - type: textarea
+    id: report
+    attributes:
+      label: "reDriver_report.zip"
+      description: "Drag the file into this box. If the zip is too large for GitHub, attach logs\\log.txt on its own."
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Before you send"
+      options:
+        - label: "I looked at the open issues and did not find this one"
+          required: true
+        - label: "I use mods or content packs (say which in the box above)"

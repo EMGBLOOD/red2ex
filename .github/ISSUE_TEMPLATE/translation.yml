@@ -1,0 +1,83 @@
+name: "Translation or text problem"
+description: "A text is wrong, cut off, or still in English."
+title: "[Text] "
+labels: ["translation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Many translations are machine made and have not been read by a native speaker, so corrections are welcome. Please send the corrected text here, not as a pull request.
+
+        To send a whole file: copy the file from the **localizations** folder (or the launcher language list), edit the part after the equals sign, and attach it.
+
+        Step by step for everything asked below: **REPORTS_README.txt** in the game folder. No GitHub account, or something private? Write to redriver2extended@protonmail.com.
+  - type: dropdown
+    id: language
+    attributes:
+      label: "Language"
+      options:
+        - "Czech"
+        - "German"
+        - "Greek"
+        - "Spanish"
+        - "French"
+        - "Croatian"
+        - "Hungarian"
+        - "Italian"
+        - "Japanese"
+        - "Polish"
+        - "Portuguese"
+        - "Romanian"
+        - "Russian"
+        - "Slovak"
+        - "Slovenian"
+        - "Serbian"
+        - "Turkish"
+        - "Ukrainian"
+        - "Chinese (Simplified)"
+        - "Chinese (Traditional)"
+        - "Other"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: "Where do you see it?"
+      options:
+        - "Launcher"
+        - "Disc Install"
+        - "In-game menus and HUD"
+        - "Subtitles"
+        - "Level editor"
+        - "reDriver Studio"
+        - "Guides and documents"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: "What is wrong?"
+      options:
+        - "The meaning is wrong"
+        - "It sounds unnatural"
+        - "The text is cut off or overlaps"
+        - "It is still in English"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    id: shown
+    attributes:
+      label: "The text as it appears now"
+      description: "Copy it exactly, or add a screenshot."
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: "How it should read"
+  - type: input
+    id: version
+    attributes:
+      label: "Game or launcher version"
+      placeholder: "0.4.2-beta"

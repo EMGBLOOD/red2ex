@@ -1,0 +1,91 @@
+name: "Crash or freeze"
+description: "The game closed by itself, showed an error, hung or went black."
+title: "[Crash] "
+labels: ["crash", "needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        After a crash the game writes **logs\crash.txt** and often a **.dmp** file next to it. When the picture stops for 20 seconds it adds a **FREEZE report** to crash.txt and a line starting with **[freeze]** to logs\log.txt.
+
+        Double click **collect_report.bat** in the game folder, it packs all of that into **reDriver_report.zip**. The .dmp is only needed if I ask for it.
+
+        The log lists your Windows version, graphics card, settings and the names of the files it found. It does not hold your computer name or account name, and a Windows user name in a folder path is written as <user>. Have a look before you post it if that matters to you.
+
+        Step by step for everything asked below: **REPORTS_README.txt** in the game folder. No GitHub account, or something private? Write to redriver2extended@protonmail.com.
+  - type: input
+    id: version
+    attributes:
+      label: "Game version"
+      description: "Shown at the bottom right of the launcher window, for example reDriver 2: Extended v0.4.2-beta."
+      placeholder: "0.4.2-beta"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: "What happened?"
+      options:
+        - "The game closed by itself"
+        - "An error message came up"
+        - "The picture froze and I had to close it"
+        - "Black or white screen"
+        - "It never got past loading"
+        - "Something else"
+    validations:
+      required: true
+  - type: dropdown
+    id: when
+    attributes:
+      label: "When?"
+      options:
+        - "Starting the game"
+        - "Loading a city"
+        - "In a mission"
+        - "In a menu"
+        - "In the level editor"
+        - "Leaving the game"
+        - "Right after Disc Install"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: "What were you doing?"
+      description: "The last thing you did before it happened."
+    validations:
+      required: true
+  - type: dropdown
+    id: repeat
+    attributes:
+      label: "Does it happen again?"
+      options:
+        - "Every time, same place"
+        - "Sometimes"
+        - "Once so far"
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: "Your system"
+      options:
+        - "Windows 11"
+        - "Windows 10"
+        - "Linux (Proton)"
+        - "Steam Deck"
+        - "Other"
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: "Graphics card and driver"
+      description: "Optional."
+  - type: textarea
+    id: report
+    attributes:
+      label: "reDriver_report.zip"
+      description: "Drag the file into this box. crash.txt and log.txt are what I read first."
+    validations:
+      required: true

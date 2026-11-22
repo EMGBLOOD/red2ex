@@ -1,0 +1,37 @@
+{
+ "d1": {
+  "release": "first public release",
+  "ids": [
+   "RD1-IMPORT",
+   "RD1-BOOT",
+   "RD1-MOVIES",
+   "RD1-MODS",
+   "RD1-DISPLAY",
+   "RD1-OPTIONS",
+   "RD1-INSTALLER",
+   "RD1-UNPACK",
+   "RD1-FRONTEND",
+   "RD1-SAVE",
+   "RD1-SOUND",
+   "RD1-LADDER",
+   "RD1-LAUNCHER",
+   "RD1-FIRST-MISSION",
+   "RD1-FAR-QUALITY",
+   "RD1-REGIONS",
+   "RD1-RELEASE"
+  ]
+ },
+ "d2": {
+  "release": "0.4.3 beta",
+  "ids": [
+   "ASHLAND-OPEN-042",
+   "ASHLAND-JUNCTION-AXES",
+   "V05-MIAMI-STREETS",
+   "V05-LONDON-CARS-REST",
+   "WSPC-CARS-043",
+   "V05-DRIV3R-CARS-CLASS",
+   "LUA-IMPROVE-043",
+   "LUA-MECHANICS-043"
+  ]
+ }
+}

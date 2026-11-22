@@ -1,0 +1,103 @@
+name: "Launcher, install or update problem"
+description: "The launcher, Disc Install, an update or the PLAY button does not work as it should."
+title: "[Launcher] "
+labels: ["launcher", "needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Send these files from the game folder, they say what went wrong:
+
+        - **updates\launcher.log** (every update and which source it used)
+        - **setup_log.txt** and **setup_report.txt** (Disc Install)
+        - the **logs** folder, if the game started
+
+        On the Disc Install result page the **Copy log** button puts the log on your clipboard, you can paste it into the last box.
+
+        Step by step for everything asked below: **REPORTS_README.txt** in the game folder. No GitHub account, or something private? Write to redriver2extended@protonmail.com.
+  - type: input
+    id: version
+    attributes:
+      label: "Launcher and game version"
+      description: "Both are at the bottom right of the launcher window."
+      placeholder: "Launcher v0.1.1, reDriver 2: Extended v0.4.2-beta"
+    validations:
+      required: true
+  - type: dropdown
+    id: step
+    attributes:
+      label: "Where did it go wrong?"
+      options:
+        - "Starting the launcher"
+        - "First install (program files)"
+        - "Your own discs / Disc Install"
+        - "Making the city files"
+        - "Checking for an update"
+        - "Downloading an update"
+        - "The launcher restarted itself after an update"
+        - "PLAY or starting the game"
+        - "Repair"
+        - "Something else"
+    validations:
+      required: true
+  - type: dropdown
+    id: how
+    attributes:
+      label: "How did you install it?"
+      options:
+        - "Offline package (launcher and data file), then Disc Install"
+        - "Data download for testers"
+        - "Updated from 0.4.0 or 0.4.1"
+        - "I do not know"
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: "Where did the update come from?"
+      description: "Open updates\\launcher.log and look for the line that starts with update source."
+      options:
+        - "GitHub"
+        - "The update server"
+        - "The update did not start"
+        - "I did not check"
+  - type: textarea
+    id: what
+    attributes:
+      label: "What did you see?"
+      description: "The exact text of any message or box. A screenshot helps."
+    validations:
+      required: true
+  - type: input
+    id: discs
+    attributes:
+      label: "Your discs"
+      description: "Only for Disc Install problems: which discs, and whether you use disc images or a drive."
+      placeholder: "Driver 2 CD1 and CD2 as .bin and .cue"
+  - type: dropdown
+    id: blocked
+    attributes:
+      label: "Did Windows or your antivirus block or remove a file?"
+      options:
+        - "No"
+        - "Yes"
+        - "I do not know"
+  - type: dropdown
+    id: system
+    attributes:
+      label: "Your system"
+      options:
+        - "Windows 11"
+        - "Windows 10"
+        - "Linux (Proton)"
+        - "Steam Deck"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs"
+      description: "Drag launcher.log, setup_log.txt and setup_report.txt into this box, or paste the log from Copy log."
+    validations:
+      required: true

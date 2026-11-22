@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Download the latest release
+    url: https://github.com/EMGBLOOD/red2ex/releases/latest
+    about: The newest launcher and offline package. Many problems are fixed in a newer version.

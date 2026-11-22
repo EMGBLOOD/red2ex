@@ -1,0 +1,50 @@
+name: "Idea or feature request"
+description: "Something you would like the game, launcher or tools to do."
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "This is a one person project. I read every idea but cannot promise an answer or a date."
+  - type: dropdown
+    id: area
+    attributes:
+      label: "What is it about?"
+      options:
+        - "Driving and cars"
+        - "Cities and world"
+        - "Missions"
+        - "Menus and interface"
+        - "Graphics"
+        - "Sound and music"
+        - "Multiplayer and controllers"
+        - "Level editor and tools"
+        - "Launcher and install"
+        - "Something else"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: "What is missing or annoying?"
+      description: "Describe the situation, not the solution."
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: "What would you like instead?"
+    validations:
+      required: true
+  - type: textarea
+    id: other
+    attributes:
+      label: "Anything else?"
+      description: "Other games that do it well, pictures, links."
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Before you send"
+      options:
+        - label: "This is not a bug (bugs have their own forms)"
+          required: true
