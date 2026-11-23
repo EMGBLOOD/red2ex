@@ -159,8 +159,12 @@
   }
   function getJson(url) { return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }); }
 
+  /* the hub data comes from the update server first; the files next to the page are the fallback */
+  var HUB = 'https://updates.toclink.com/';
+  function getHub(name) { return getJson(HUB + name).catch(function () { return getJson('./' + name); }); }
+
   /* milestones.json lists the big steps toward each game's next release; the cards show only those */
-  Promise.all([getJson('./data.json'), getJson('./milestones.json').catch(function () { return null; })]).then(function (r) {
+  Promise.all([getHub('data.json'), getHub('milestones.json').catch(function () { return null; })]).then(function (r) {
     var D = r[0], M = r[1];
     function pick(game) {
       if (!M || !M[game]) return D.items;
@@ -177,7 +181,7 @@
     if (up) up.textContent = 'Last updated ' + D.built + '.';
   }).catch(function () { /* keep the exported numbers */ });
 
-  getJson('./changelog.json').then(function (C) {
+  getHub('changelog.json').then(function (C) {
     var dl = document.querySelector('dl.rel'), box = document.getElementById('hub-changelog');
     if (dl) renderReleases(dl, C);
     if (box) renderChangelog(box, C);
