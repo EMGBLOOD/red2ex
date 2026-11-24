@@ -184,15 +184,6 @@
     if (old) old.parentNode.removeChild(old);
     if (!g) return;
     var box = el('div', 'hp');
-    box.appendChild(el('h4', '', 'This week'));
-    var nums = el('div', 'hp-row');
-    [[g.weekDone, 'finished'], [g.commitsToday, 'commits today'], [g.commitsWeek, 'commits this week']].forEach(function (p) {
-      var sp = el('span');
-      sp.appendChild(el('b', '', String(p[0] || 0)));
-      sp.appendChild(document.createTextNode(' ' + p[1]));
-      nums.appendChild(sp);
-    });
-    box.appendChild(nums);
     if (g.working && g.working.length) {
       box.appendChild(el('h4', '', 'Working on right now'));
       var ul = el('ul');
