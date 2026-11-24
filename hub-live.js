@@ -2,7 +2,9 @@
    Place the three files next to the exported pages. All text goes in with textContent, never innerHTML.
    Cards: .game with data-game="d1" / "d2" (else first = Driver 1, second = Driver 2).
    Releases list: <dl class="rel">.  Changelog: <div id="hub-changelog">.
-   If a file cannot be read the page keeps what it was exported with. */
+   If a file cannot be read the page keeps what it was exported with.
+   Schema 3 (2026-11-24): data.json also has built (UTC time), commit and games.<d1|d2> = { weekDone, lastDone[], commitsToday, commitsWeek, working[] }; data without these keys
+   (schema 2) still renders as before, and a page of an older version ignores them. */
 (function () {
   'use strict';
   var SKIP = { 'RD1-HUB-SPLIT': 1 };   /* counted, not listed (internal wording) */
@@ -49,6 +51,17 @@
     }
   }
   function tagText(s) { return s === 'done' ? 'Done' : (s === 'planned' ? 'Queued' : (s === 'hold' ? 'On hold' : 'Under way')); }
+  /* the stage progress of a job: ticked stages (done = full, partly = half) of all stages */
+  function stageBar(it) {
+    var w = Math.min(100, Math.round(((it.done || 0) + (it.partly || 0) * 0.5) / it.total * 100));
+    var bar = el('span', 'hp-bar');
+    var fill = el('i');
+    fill.style.width = w + '%';
+    bar.appendChild(fill);
+    bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label', (it.done || 0) + ' of ' + it.total + ' stages done');
+    return bar;
+  }
   function row(it) {
     var st = it.status === 'done' ? 'ok' : ((it.status === 'planned' || it.status === 'hold') ? '' : 'act');
     var li = el('li', st ? 's-' + st : '');
@@ -57,6 +70,7 @@
     var note = it.text || '';
     if (it.total > 0 && it.status !== 'done') note += (note ? ' ' : '') + it.done + ' of ' + it.total + ' stages done.';
     if (note) d.appendChild(el('small', '', note));
+    if (it.total > 0 && it.status !== 'done') d.appendChild(stageBar(it));
     li.appendChild(d);
     li.appendChild(el('span', 'tag', tagText(it.status)));
     return li;
@@ -118,6 +132,13 @@
       '.clc{margin-left:auto;font:500 12px var(--mono);color:var(--dim)}' +
       '.clh{font:700 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--red-ink);margin:22px 0 6px}' +
       '.ms li.more{display:block;padding:9px 0}.ms li.more summary{cursor:pointer;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--red-ink)}.ms li.more ul.ms{margin-top:8px}' +
+      '.hp-bar{display:block;height:5px;margin-top:6px;background:var(--line);border-radius:3px;overflow:hidden}.hp-bar i{display:block;height:100%;background:var(--red-ink)}' +
+      '.hp{margin:14px 0 6px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}' +
+      '.hp h4{margin:0 0 6px;font:700 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--red-ink)}' +
+      '.hp .hp-row{display:flex;gap:18px;flex-wrap:wrap;font:500 13px var(--mono);color:var(--fg);margin:0 0 8px}.hp .hp-row b{font-size:18px}' +
+      '.hp ul{margin:0 0 8px;padding:0;list-style:none}.hp li{display:flex;gap:10px;justify-content:space-between;align-items:baseline;padding:3px 0;font-size:14px;overflow-wrap:anywhere}' +
+      '.hp li small{color:var(--dim);font:500 12px var(--mono);white-space:nowrap}.hp li div{flex:1;min-width:0}' +
+      '#hub-fresh{font:500 13px var(--mono);color:var(--dim);margin:8px 0}#hub-fresh.hp-warn{color:var(--red-ink);font-weight:700}' +
       '.cll{margin:0;padding-left:20px}.cll li{margin:6px 0;color:var(--fg);font-size:15px;overflow-wrap:anywhere}';
     document.head.appendChild(st);
   })();
@@ -157,11 +178,74 @@
       box.appendChild(det);
     });
   }
+  /* the daily progress of one game card (schema 3): finished this week, commits, working on right now */
+  function panel(card, g) {
+    var old = card.querySelector('.hp');
+    if (old) old.parentNode.removeChild(old);
+    if (!g) return;
+    var box = el('div', 'hp');
+    box.appendChild(el('h4', '', 'This week'));
+    var nums = el('div', 'hp-row');
+    [[g.weekDone, 'finished'], [g.commitsToday, 'commits today'], [g.commitsWeek, 'commits this week']].forEach(function (p) {
+      var sp = el('span');
+      sp.appendChild(el('b', '', String(p[0] || 0)));
+      sp.appendChild(document.createTextNode(' ' + p[1]));
+      nums.appendChild(sp);
+    });
+    box.appendChild(nums);
+    if (g.working && g.working.length) {
+      box.appendChild(el('h4', '', 'Working on right now'));
+      var ul = el('ul');
+      g.working.forEach(function (w) {
+        var li = el('li'), d = el('div', '', w.title);
+        if (w.total > 0) { d.appendChild(stageBar(w)); }
+        li.appendChild(d);
+        li.appendChild(el('small', '', w.total > 0 ? w.done + ' of ' + w.total : (w.now ? 'now' : '')));
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+    if (g.lastDone && g.lastDone.length) {
+      box.appendChild(el('h4', '', 'Finished lately'));
+      var ul2 = el('ul');
+      g.lastDone.forEach(function (w) {
+        var li = el('li');
+        li.appendChild(el('div', '', w.title));
+        li.appendChild(el('small', '', w.date || ''));
+        ul2.appendChild(li);
+      });
+      box.appendChild(ul2);
+    }
+    var anchor = card.querySelector('ul.ms');
+    if (anchor) anchor.parentNode.insertBefore(box, anchor); else card.appendChild(box);
+  }
+
+  /* "Last updated <local time> from commit <hash>"; a red warning when the data is older than 3 hours or only the old copy next to the page could be read */
+  function freshness(D, fallback) {
+    var line = document.getElementById('hub-updated') || document.getElementById('hub-fresh');
+    if (!line) {
+      var games = document.querySelector('.hubgames');
+      if (!games || !games.parentNode) return;
+      line = el('p');
+      line.id = 'hub-fresh';
+      games.parentNode.insertBefore(line, games);
+    }
+    var t = /T\d\d:\d\d/.test(String(D.built)) ? new Date(D.built) : null;
+    var when = t && !isNaN(t) ? t.toLocaleString() : String(D.built || 'unknown');
+    var text = 'Last updated ' + when + (D.commit ? ' from commit ' + D.commit : '') + '.';
+    var ageH = t && !isNaN(t) ? (Date.now() - t.getTime()) / 3600000 : 0;
+    var warn = '';
+    if (fallback) warn = 'WARNING: the live data could not be loaded, this is the old copy. ';
+    else if (ageH > 3) warn = 'WARNING: the data is ' + Math.floor(ageH) + ' hours old, the update is not running. ';
+    line.className = warn ? 'hp-warn' : '';
+    line.textContent = warn + text;
+  }
   function getJson(url) { return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }); }
 
   /* the hub data comes from the update server first; the files next to the page are the fallback */
   var HUB = 'https://updates.toclink.com/';
-  function getHub(name) { return getJson(HUB + name).catch(function () { return getJson('./' + name); }); }
+  var FALLBACK = false;   /* data.json came from the old file next to the page */
+  function getHub(name) { return getJson(HUB + name).catch(function () { if (name === 'data.json') FALLBACK = true; return getJson('./' + name); }); }
 
   /* milestones.json lists the big steps toward each game's next release; the cards show only those */
   Promise.all([getHub('data.json'), getHub('milestones.json').catch(function () { return null; })]).then(function (r) {
@@ -177,8 +261,8 @@
     if (d2) { setCounts(d2, tally(pick('d2'), 'd2'), true); setRows(d2, pick('d2'), 'd2'); }
     var go = function () { balance([d1, d2]); };
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
-    var up = document.getElementById('hub-updated');
-    if (up) up.textContent = 'Last updated ' + D.built + '.';
+    freshness(D, FALLBACK);
+    if (D.games) { if (d1) panel(d1, D.games.d1); if (d2) panel(d2, D.games.d2); }
   }).catch(function () { /* keep the exported numbers */ });
 
   getHub('changelog.json').then(function (C) {
