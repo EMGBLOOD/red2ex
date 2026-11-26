@@ -67,9 +67,7 @@
     var li = el('li', st ? 's-' + st : '');
     li.appendChild(el('span', 'dot'));
     var d = el('div', '', it.title);
-    var note = it.text || '';
-    if (it.total > 0 && it.status !== 'done') note += (note ? ' ' : '') + it.done + ' of ' + it.total + ' stages done.';
-    if (note) d.appendChild(el('small', '', note));
+    /* the title alone (owner 2026-11-25: no description text under the steps); a staged step keeps its bar */
     if (it.total > 0 && it.status !== 'done') d.appendChild(stageBar(it));
     li.appendChild(d);
     li.appendChild(el('span', 'tag', tagText(it.status)));
